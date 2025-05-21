@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"payment_service/internal/models"
-	"payment_service/internal/repository"
+
+	"github.com/SeiFlow-3P2/payment_service/internal/models"
+	"github.com/SeiFlow-3P2/payment_service/internal/repository"
 )
 
 type SubscriptionService struct {
