@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"payment_service/internal/models"
+
+	"github.com/SeiFlow-3P2/payment_service/internal/models"
 
 	"gorm.io/gorm"
 )
@@ -24,7 +25,7 @@ func (r *paymentRecordGorm) UpdateStatus(ctx context.Context, checkoutSessionID 
 		Model(&models.PaymentRecord{}).
 		Where("stripe_checkout_session_id = ?", checkoutSessionID).
 		Updates(map[string]interface{}{
-			"status":          status,
+			"status":           status,
 			"stripe_charge_id": chargeID,
 		}).Error
 }

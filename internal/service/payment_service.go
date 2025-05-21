@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
-	"payment_service/internal/models"
-	"payment_service/internal/repository"
+
+	"github.com/SeiFlow-3P2/payment_service/internal/models"
+	"github.com/SeiFlow-3P2/payment_service/internal/repository"
+	"github.com/stripe/stripe-go/v76"
 )
 
 type PaymentService struct {
@@ -24,4 +26,8 @@ func (s *PaymentService) UpdatePaymentStatus(ctx context.Context, checkoutSessio
 
 func (s *PaymentService) GetPaymentRecord(ctx context.Context, checkoutSessionID string) (*models.PaymentRecord, error) {
 	return s.repo.GetByCheckoutSessionID(ctx, checkoutSessionID)
+}
+
+func (s *PaymentService) HandleCheckoutCompleted(ctx context.Context, session *stripe.CheckoutSession) error {
+	return s.repo.UpdateStatus(ctx, session.ID, "paid", session.PaymentIntent.ID)
 }

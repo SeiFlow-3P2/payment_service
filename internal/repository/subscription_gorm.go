@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"payment_service/internal/models"
+
+	"github.com/SeiFlow-3P2/payment_service/internal/models"
 
 	"gorm.io/gorm"
 )
