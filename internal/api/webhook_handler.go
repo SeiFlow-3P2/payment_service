@@ -8,12 +8,17 @@ import (
 )
 
 type WebhookHandler struct {
-	paymentService *service.PaymentService
+    paymentService *service.PaymentService
+    shutdownChan   chan struct{}
 }
 
-func NewWebhookHandler(paymentService *service.PaymentService) *WebhookHandler {
-	return &WebhookHandler{paymentService: paymentService}
+func NewWebhookHandler(paymentService *service.PaymentService, shutdownChan chan struct{}) *WebhookHandler {
+    return &WebhookHandler{
+        paymentService: paymentService,
+        shutdownChan:   shutdownChan,
+    }
 }
+
 
 func (h *WebhookHandler) HandleStripeWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)
@@ -31,4 +36,10 @@ func (h *WebhookHandler) HandleStripeWebhook(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.WriteHeader(http.StatusOK)
+
+// Завершаем приложение
+go func() {
+    h.shutdownChan <- struct{}{}
+}()
+
 }

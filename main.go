@@ -1,56 +1,55 @@
 package main
 
 import (
-	"log"
-	"net"
-	"net/http"
-	"os"
+    "context"
+    "log"
+    "os"
+    "os/signal"
+    "syscall"
+    "time"
 
-	"google.golang.org/grpc"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+    "gorm.io/driver/postgres"
+    "gorm.io/gorm"
 
-	"github.com/SeiFlow-3P2/payment_service/internal/api"
-	"github.com/SeiFlow-3P2/payment_service/internal/repository"
-	"github.com/SeiFlow-3P2/payment_service/internal/service"
-	pb "github.com/SeiFlow-3P2/payment_service/pkg/proto/v1"
+    "github.com/SeiFlow-3P2/payment_service/internal/app"
 )
 
 func main() {
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		log.Fatal("DATABASE_URL is not set")
-	}
+    // 1. Чтение переменной окружения с подключением к БД
+    dsn := os.Getenv("DATABASE_URL")
+if dsn == "" {
+    // временно для локальной отладки
+    dsn = "postgres://postgres:12345@localhost:5432/payment?sslmode=disable"
+}
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
-	}
 
-	paymentRepo := repository.NewPaymentRecordGorm(db)
-	paymentService := service.NewPaymentService(paymentRepo)
-	paymentAPI := api.NewPaymentAPI(paymentService)
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    if err != nil {
+        log.Fatalf("failed to connect to database: %v", err)
+    }
 
-	go func() {
-		grpcServer := grpc.NewServer()
-		pb.RegisterPaymentServiceServer(grpcServer, paymentAPI)
+    // 2. Создаём приложение
+    application := &app.App{}
 
-		listener, err := net.Listen("tcp", ":50051")
-		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
-		}
+    // 3. Запуск серверов
+    if err := application.Start(":50051", ":8080", db); err != nil {
+        log.Fatalf("failed to start application: %v", err)
+    }
 
-		log.Println("gRPC server listening on :50051")
-		if err := grpcServer.Serve(listener); err != nil {
-			log.Fatalf("failed to serve: %v", err)
-		}
-	}()
+    // 4. Ожидание завершения по сигналу (Ctrl+C или SIGTERM)
+    stop := make(chan os.Signal, 1)
+    signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
-	httpHandler := api.NewWebhookHandler(paymentService)
-	http.HandleFunc("/stripe/webhook", httpHandler.HandleStripeWebhook)
+    <-stop
+    log.Println("Termination signal received. Shutting down...")
 
-	log.Println("Serving Stripe webhook on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("failed to start HTTP server: %v", err)
-	}
+    // 5. Graceful shutdown
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    if err := application.Shutdown(ctx); err != nil {
+        log.Fatalf("error during shutdown: %v", err)
+    }
+
+    log.Println("Application stopped.")
 }
