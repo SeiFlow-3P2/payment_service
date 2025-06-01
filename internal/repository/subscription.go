@@ -7,7 +7,12 @@ import (
 )
 
 type SubscriptionRepository interface {
-	GetByUserID(ctx context.Context, userID string) (*models.UserSubscription, error)
+	// Получить последнюю подписку пользователя
+	GetByUserID(ctx context.Context, userID int) (*models.UserSubscription, error)
+
+	// Создать или обновить подписку
 	CreateOrUpdate(ctx context.Context, sub *models.UserSubscription) error
+
+	// Обновить статус подписки
 	UpdateStatus(ctx context.Context, userID string, status string) error
 }

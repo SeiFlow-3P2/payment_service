@@ -14,17 +14,23 @@ service PaymentService {
       body: "*"
     };
   }
-  
+
   rpc HandleStripeWebhook (HandleStripeWebhookRequest) returns (HandleStripeWebhookResponse) {
     option (google.api.http) = {
       post: "/v1/payment/webhook"
       body: "*"
     };
   }
-  
+
   rpc GetSubscriptionInfo (GetSubscriptionInfoRequest) returns (GetSubscriptionInfoResponse) {
     option (google.api.http) = {
       get: "/v1/payment/subscription"
+    };
+  }
+
+  rpc GetCurrentSubscription(GetCurrentSubscriptionRequest) returns (GetCurrentSubscriptionResponse) {
+    option (google.api.http) = {
+      get: "/v1/payment/current-subscription"
     };
   }
 }
@@ -57,4 +63,16 @@ message GetSubscriptionInfoResponse {
   string status = 2;
   google.protobuf.Timestamp current_period_start = 3;
   google.protobuf.Timestamp current_period_end = 4;
+}
+
+message GetCurrentSubscriptionRequest {
+  int64 user_id = 1;
+}
+
+message GetCurrentSubscriptionResponse {
+  string subscription_id = 1;
+  string plan_id = 2;
+  string status = 3;
+  google.protobuf.Timestamp current_period_start = 4;
+  google.protobuf.Timestamp current_period_end = 5;
 }
