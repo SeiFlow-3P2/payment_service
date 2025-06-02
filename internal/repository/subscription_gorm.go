@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/SeiFlow-3P2/payment_service/internal/models"
-
 	"gorm.io/gorm"
 )
 
@@ -16,7 +15,8 @@ func NewSubscriptionGorm(db *gorm.DB) SubscriptionRepository {
 	return &subscriptionGorm{db: db}
 }
 
-func (r *subscriptionGorm) GetByUserID(ctx context.Context, userID string) (*models.UserSubscription, error) {
+// Получение последней по времени подписки пользователя
+func (r *subscriptionGorm) GetByUserID(ctx context.Context, userID int) (*models.UserSubscription, error) {
 	var sub models.UserSubscription
 	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).First(&sub).Error; err != nil {
 		return nil, err
@@ -34,3 +34,4 @@ func (r *subscriptionGorm) UpdateStatus(ctx context.Context, userID string, stat
 		Where("user_id = ?", userID).
 		Update("status", status).Error
 }
+
