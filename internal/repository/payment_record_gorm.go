@@ -17,7 +17,12 @@ func NewPaymentRecordGorm(db *gorm.DB) PaymentRecordRepository {
 }
 
 func (r *paymentRecordGorm) Create(ctx context.Context, record *models.PaymentRecord) error {
-	return r.db.WithContext(ctx).Create(record).Error
+    // Если PaymentMethodDetails пустое или некорректное, устанавливаем его как nil
+    if len(record.PaymentMethodDetails) == 0 || string(record.PaymentMethodDetails) == "''" {
+        record.PaymentMethodDetails = nil
+    }
+
+    return r.db.WithContext(ctx).Create(record).Error
 }
 
 func (r *paymentRecordGorm) UpdateStatus(ctx context.Context, checkoutSessionID string, status string, chargeID string) error {

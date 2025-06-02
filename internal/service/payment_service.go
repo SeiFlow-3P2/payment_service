@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/SeiFlow-3P2/payment_service/internal/models"
 	"github.com/SeiFlow-3P2/payment_service/internal/repository"
+	payment_v1 "github.com/SeiFlow-3P2/payment_service/pkg/proto/v1"
+	"github.com/joho/godotenv"
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/checkout/session"
 	"github.com/stripe/stripe-go/v76/webhook"
@@ -17,12 +20,21 @@ type PaymentService struct {
 	repo repository.PaymentRecordRepository
 }
 
+func main() {
+	// Загрузим переменные из файла .env
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Ошибка загрузки .env файла:", err)
+	}
+
+	fmt.Println("Stripe key:", os.Getenv("STRIPE_SECRET_KEY"))
+}
+
 func NewPaymentService(repo repository.PaymentRecordRepository) *PaymentService {
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 	return &PaymentService{repo: repo}
 }
 
-// Бизнес-логика создания Stripe Checkout Session
 func (s *PaymentService) CreateStripeCheckoutSession(ctx context.Context, planID, successURL, cancelURL string) (*stripe.CheckoutSession, error) {
 	params := &stripe.CheckoutSessionParams{
 		SuccessURL: stripe.String(successURL),
@@ -30,7 +42,7 @@ func (s *PaymentService) CreateStripeCheckoutSession(ctx context.Context, planID
 		Mode:       stripe.String(string(stripe.CheckoutSessionModeSubscription)),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price:    stripe.String(planID),
+				Price:    stripe.String(`price_1RLl21C008GjZrWG9mnSftGO`),
 				Quantity: stripe.Int64(1),
 			},
 		},
@@ -45,6 +57,7 @@ func (s *PaymentService) CreateStripeCheckoutSession(ctx context.Context, planID
 		StripeCheckoutSessionID: sess.ID,
 		Status:                  "created",
 		PlanID:                  planID,
+		PaymentMethodDetails:    []byte("{}"),
 	}
 
 	err = s.repo.Create(ctx, record)
@@ -99,4 +112,8 @@ func (s *PaymentService) UpdatePaymentStatus(ctx context.Context, checkoutSessio
 
 func (s *PaymentService) GetPaymentRecord(ctx context.Context, checkoutSessionID string) (*models.PaymentRecord, error) {
 	return s.repo.GetByCheckoutSessionID(ctx, checkoutSessionID)
+}
+
+type Server struct {
+	payment_v1.UnimplementedPaymentServiceServer
 }

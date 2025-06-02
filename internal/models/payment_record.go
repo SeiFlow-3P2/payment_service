@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type PaymentRecord struct {
 	ID                      uint      `gorm:"primaryKey;column:id"`
@@ -11,7 +14,7 @@ type PaymentRecord struct {
 	Amount                  int64     `gorm:"column:amount"`
 	Currency                string    `gorm:"column:currency"`
 	Status                  string    `gorm:"column:status"`
-	PaymentMethodDetails    string    `gorm:"type:jsonb;column:payment_method_details"`
+	PaymentMethodDetails    json.RawMessage    `gorm:"type:jsonb;column:payment_method_details"`
 	PlanID                  string    `gorm:"column:plan_id"` 
 	CreatedAt               time.Time `gorm:"column:created_at"`
 	UpdatedAt               time.Time `gorm:"column:updated_at"`

@@ -11,7 +11,7 @@ import (
     "google.golang.org/grpc"
     "gorm.io/gorm"
 
-    internalapi "github.com/SeiFlow-3P2/payment_service/internal/api"
+    
     "github.com/SeiFlow-3P2/payment_service/internal/repository"
     "github.com/SeiFlow-3P2/payment_service/internal/service"
 )
@@ -43,23 +43,6 @@ func (a *App) Start(grpcAddr, httpAddr string, db *gorm.DB) error {
         }
     }()
     log.Printf("gRPC server started at %s", grpcAddr)
-
-    // HTTP сервер и хендлер с каналом завершения
-    handler := internalapi.NewWebhookHandler(a.paymentService, a.shutdownChan)
-    mux := http.NewServeMux()
-    mux.HandleFunc("/webhook", handler.HandleStripeWebhook)
-
-    a.httpServer = &http.Server{
-        Addr:    httpAddr,
-        Handler: mux,
-    }
-
-    go func() {
-        if err := a.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-            log.Printf("HTTP server error: %v", err)
-        }
-    }()
-    log.Printf("HTTP server started at %s", httpAddr)
 
     // слушаем shutdown-сигнал от webhook
     go func() {
