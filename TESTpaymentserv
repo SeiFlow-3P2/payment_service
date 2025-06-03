@@ -1,0 +1,170 @@
+package payment
+
+import (
+	"context"
+	"errors"
+	"testing"
+	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+// MockPaymentService implements PaymentServiceServer for testing
+type MockPaymentService struct {
+	UnimplementedPaymentServiceServer
+}
+
+func (m *MockPaymentService) CreateCheckoutSession(ctx context.Context, req *CreateCheckoutSessionRequest) (*CreateCheckoutSessionResponse, error) {
+	if req.PlanId == "" || req.SuccessUrl == "" || req.CancelUrl == "" {
+		return nil, errors.New("missing required fields")
+	}
+
+	return &CreateCheckoutSessionResponse{
+		CheckoutSessionId: "mock_session_123",
+		CheckoutUrl:       "https://checkout.mock/session_123",
+	}, nil
+}
+
+func (m *MockPaymentService) HandleStripeWebhook(ctx context.Context, req *HandleStripeWebhookRequest) (*HandleStripeWebhookResponse, error) {
+	if req.Payload == "" || req.StripeSignature == "" {
+		return nil, errors.New("missing required fields")
+	}
+
+	return &HandleStripeWebhookResponse{
+		Success: true,
+		Message: "webhook processed",
+	}, nil
+}
+
+func (m *MockPaymentService) GetSubscriptionInfo(ctx context.Context, req *GetSubscriptionInfoRequest) (*GetSubscriptionInfoResponse, error) {
+	now := time.Now()
+	return &GetSubscriptionInfoResponse{
+		PlanId:             "premium_monthly",
+		Status:            "active",
+		CurrentPeriodStart: timestamppb.New(now),
+		CurrentPeriodEnd:   timestamppb.New(now.Add(30 * 24 * time.Hour)),
+	}, nil
+}
+
+// Tests
+func TestCreateCheckoutSession(t *testing.T) {
+	ctx := context.Background()
+	mock := &MockPaymentService{}
+
+	t.Run("ValidRequest", func(t *testing.T) {
+		req := &CreateCheckoutSessionRequest{
+			PlanId:     "premium_monthly",
+			SuccessUrl: "https://example.com/success",
+			CancelUrl:  "https://example.com/cancel",
+		}
+
+		resp, err := mock.CreateCheckoutSession(ctx, req)
+		if err != nil {
+			t.Fatalf("CreateCheckoutSession failed: %v", err)
+		}
+
+		if resp.CheckoutSessionId != "mock_session_123" {
+			t.Errorf("Expected session ID 'mock_session_123', got '%s'", resp.CheckoutSessionId)
+		}
+	})
+
+	t.Run("MissingFields", func(t *testing.T) {
+		testCases := []struct {
+			name string
+			req  *CreateCheckoutSessionRequest
+		}{
+			{"NoPlanId", &CreateCheckoutSessionRequest{
+				SuccessUrl: "https://example.com/success",
+				CancelUrl:  "https://example.com/cancel",
+			}},
+			{"NoSuccessUrl", &CreateCheckoutSessionRequest{
+				PlanId:    "premium_monthly",
+				CancelUrl: "https://example.com/cancel",
+			}},
+			{"NoCancelUrl", &CreateCheckoutSessionRequest{
+				PlanId:     "premium_monthly",
+				SuccessUrl: "https://example.com/success",
+			}},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				_, err := mock.CreateCheckoutSession(ctx, tc.req)
+				if err == nil {
+					t.Error("Expected error for missing fields")
+				}
+			})
+		}
+	})
+}
+
+func TestHandleStripeWebhook(t *testing.T) {
+	ctx := context.Background()
+	mock := &MockPaymentService{}
+
+	t.Run("ValidRequest", func(t *testing.T) {
+		req := &HandleStripeWebhookRequest{
+			Payload:        "test_payload",
+			StripeSignature: "test_sig",
+		}
+
+		resp, err := mock.HandleStripeWebhook(ctx, req)
+		if err != nil {
+			t.Fatalf("HandleStripeWebhook failed: %v", err)
+		}
+
+		if !resp.Success {
+			t.Error("Expected success response")
+		}
+	})
+
+	t.Run("MissingFields", func(t *testing.T) {
+		testCases := []struct {
+			name string
+			req  *HandleStripeWebhookRequest
+		}{
+			{"NoPayload", &HandleStripeWebhookRequest{
+				StripeSignature: "test_sig",
+			}},
+			{"NoSignature", &HandleStripeWebhookRequest{
+				Payload: "test_payload",
+			}},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				_, err := mock.HandleStripeWebhook(ctx, tc.req)
+				if err == nil {
+					t.Error("Expected error for missing fields")
+				}
+			})
+		}
+	})
+}
+
+func TestGetSubscriptionInfo(t *testing.T) {
+	ctx := context.Background()
+	mock := &MockPaymentService{}
+
+	req := &GetSubscriptionInfoRequest{}
+	resp, err := mock.GetSubscriptionInfo(ctx, req)
+	if err != nil {
+		t.Fatalf("GetSubscriptionInfo failed: %v", err)
+	}
+
+	if resp.PlanId != "premium_monthly" {
+		t.Errorf("Expected plan ID 'premium_monthly', got '%s'", resp.PlanId)
+	}
+
+	if resp.Status != "active" {
+		t.Errorf("Expected status 'active', got '%s'", resp.Status)
+	}
+
+	if resp.CurrentPeriodStart == nil || resp.CurrentPeriodEnd == nil {
+		t.Error("Expected period dates to be set")
+	}
+
+	if resp.CurrentPeriodEnd.AsTime().Before(resp.CurrentPeriodStart.AsTime()) {
+		t.Error("Period end should be after period start")
+	}
+}
