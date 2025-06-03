@@ -2,16 +2,18 @@
 -- +goose StatementBegin
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+DROP TABLE IF EXISTS user_subscriptions;
+
 CREATE TABLE user_subscriptions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     user_id UUID NOT NULL,
-    plan_id INTEGER NOT NULL,
-    stripe_subscription_id TEXT,
-    status TEXT CHECK (status IN ('active', 'inactive', 'canceled')) NOT NULL,
-    current_period_start TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    current_period_end TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
+    plan_id VARCHAR(255) NOT NULL,
+    stripe_subscription_id VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL,
+    current_period_start TIMESTAMP NOT NULL,
+    current_period_end TIMESTAMP NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd
 

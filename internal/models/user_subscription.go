@@ -1,15 +1,22 @@
 package models
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type UserSubscription struct {
-	ID                   uint      `gorm:"primaryKey;column:id"`
-	UserID               uint      `gorm:"column:user_id"`
-	PlanID               string    `gorm:"column:plan_id"`
-	StripeSubscriptionID string    `gorm:"column:stripe_subscription_id"`
-	Status               string    `gorm:"column:status"`
-	CurrentPeriodStart   time.Time `gorm:"column:current_period_start"`
-	CurrentPeriodEnd     time.Time `gorm:"column:current_period_end"`
-	CreatedAt            time.Time `gorm:"column:created_at"`
-	UpdatedAt            time.Time `gorm:"column:updated_at"`
+	ID                 uint           `gorm:"primaryKey"`
+	UserID             uuid.UUID      `gorm:"type:uuid;not null"` // Изменяем на uuid
+	PlanID             string         `gorm:"type:varchar(255);not null"`
+	StripeSubscriptionID string        `gorm:"type:varchar(255);not null;unique"`
+	Status             string         `gorm:"type:varchar(50);not null"`
+	CurrentPeriodStart time.Time      `gorm:"not null"`
+	CurrentPeriodEnd   time.Time      `gorm:"not null"`
+	CreatedAt          time.Time      `gorm:"autoCreateTime"`
+	UpdatedAt          time.Time      `gorm:"autoUpdateTime"`
+}
+
+func (UserSubscription) TableName() string {
+	return "user_subscriptions"
 }

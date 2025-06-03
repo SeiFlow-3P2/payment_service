@@ -94,13 +94,13 @@ func main() {
 		}
 	}()
 
-	// Webhook endpoint — отдельно на :80
+	// Webhook endpoint — отдельно на :8000
 	webhookHandler := api.NewWebhookHandler(paymentService, make(chan struct{}))
 
 	go func() {
 		http.HandleFunc("/webhook", webhookHandler.HandleStripeWebhook)
-		log.Println("HTTP webhook server started on :80 (/webhook)")
-		if err := http.ListenAndServe(":80", nil); err != nil && err != http.ErrServerClosed {
+		log.Println("HTTP webhook server started on :8000 (/webhook)")
+		if err := http.ListenAndServe(":8000", nil); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Webhook server error: %v", err)
 		}
 	}()

@@ -2,37 +2,54 @@ package repository
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/SeiFlow-3P2/payment_service/internal/models"
 	"gorm.io/gorm"
 )
 
-type subscriptionGorm struct {
+// SubscriptionRepository определяет интерфейс для работы с подписками
+type SubscriptionRepository interface {
+	// Получить последнюю подписку пользователя
+	GetByUserID(ctx context.Context, userID uuid.UUID) (*models.UserSubscription, error)
+
+	// Создать или обновить подписку
+	CreateOrUpdate(ctx context.Context, sub *models.UserSubscription) error
+
+	// Обновить статус подписки
+	UpdateStatus(ctx context.Context, userID uuid.UUID, status string) error
+}
+
+// subscriptionRepositoryGorm — реализация интерфейса SubscriptionRepository с использованием GORM
+type subscriptionRepositoryGorm struct {
 	db *gorm.DB
 }
 
+// NewSubscriptionGorm создает новый экземпляр SubscriptionRepository
 func NewSubscriptionGorm(db *gorm.DB) SubscriptionRepository {
-	return &subscriptionGorm{db: db}
+	return &subscriptionRepositoryGorm{db: db}
 }
 
-
-// Получение последней по времени подписки пользователя
-func (r *subscriptionGorm) GetByUserID(ctx context.Context, userID uuid.UUID) (*models.UserSubscription, error) {
-	var sub models.UserSubscription
-	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).First(&sub).Error; err != nil {
+// GetByUserID получает подписку по user_id
+func (r *subscriptionRepositoryGorm) GetByUserID(ctx context.Context, userID uuid.UUID) (*models.UserSubscription, error) {
+	var subscription models.UserSubscription
+	if err := r.db.WithContext(ctx).Where("user_id = ?", userID.String()).First(&subscription).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
-	return &sub, nil
+	return &subscription, nil
 }
 
-func (r *subscriptionGorm) CreateOrUpdate(ctx context.Context, sub *models.UserSubscription) error {
+// CreateOrUpdate создает или обновляет подписку
+func (r *subscriptionRepositoryGorm) CreateOrUpdate(ctx context.Context, sub *models.UserSubscription) error {
 	return r.db.WithContext(ctx).Save(sub).Error
 }
 
-func (r *subscriptionGorm) UpdateStatus(ctx context.Context, userID uuid.UUID, status string) error {
-	return r.db.WithContext(ctx).
-		Model(&models.UserSubscription{}).
-		Where("user_id = ?", userID).
+// UpdateStatus обновляет статус подписки
+func (r *subscriptionRepositoryGorm) UpdateStatus(ctx context.Context, userID uuid.UUID, status string) error {
+	return r.db.WithContext(ctx).Model(&models.UserSubscription{}).
+		Where("user_id = ?", userID.String()).
 		Update("status", status).Error
 }
-

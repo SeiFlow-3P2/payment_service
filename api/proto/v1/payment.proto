@@ -27,13 +27,7 @@ service PaymentService {
       get: "/v1/payment/subscription"
     };
   }
-
-  rpc GetCurrentSubscription(GetCurrentSubscriptionRequest) returns (GetCurrentSubscriptionResponse) {
-    option (google.api.http) = {
-      get: "/v1/payment/current-subscription/{user_id}"
-    };
-  }
-}
+ }
 
 message CreateCheckoutSessionRequest {
   string plan_id = 1;
@@ -56,23 +50,13 @@ message HandleStripeWebhookResponse {
   string message = 2;
 }
 
-message GetSubscriptionInfoRequest {}
+message GetSubscriptionInfoRequest {
+  string user_id = 1;
+}
 
 message GetSubscriptionInfoResponse {
   string plan_id = 1;
   string status = 2;
   google.protobuf.Timestamp current_period_start = 3;
   google.protobuf.Timestamp current_period_end = 4;
-}
-
-message GetCurrentSubscriptionRequest {
-  int64 user_id = 1;
-}
-
-message GetCurrentSubscriptionResponse {
-  string subscription_id = 1;
-  string plan_id = 2;
-  string status = 3;
-  google.protobuf.Timestamp current_period_start = 4;
-  google.protobuf.Timestamp current_period_end = 5;
-}
+  }
