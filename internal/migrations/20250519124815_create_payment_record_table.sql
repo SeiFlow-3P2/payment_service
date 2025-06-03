@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS payment_record (
     id UUID PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id UUID NOT NULL,
     user_subscription_id INTEGER,
     stripe_charge_id VARCHAR(255),
     stripe_checkout_session_id VARCHAR(255),

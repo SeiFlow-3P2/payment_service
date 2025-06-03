@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"context"
 	"errors"
-
+	"fmt"
+	
+	"github.com/google/uuid"
 	"github.com/SeiFlow-3P2/payment_service/internal/service"
 	pb "github.com/SeiFlow-3P2/payment_service/pkg/proto/v1"
 )
@@ -49,7 +51,7 @@ func NewWebhookHandler(paymentService *service.PaymentService, shutdownChan chan
 }
 
 func (h *WebhookHandler) HandleStripeWebhook(w http.ResponseWriter, r *http.Request) {
-    const MaxBodyBytes = int64(102400) // Увеличен лимит до 100 КБ
+    const MaxBodyBytes = int64(102400) // 100 КБ
     r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
     defer r.Body.Close()
 
@@ -59,26 +61,28 @@ func (h *WebhookHandler) HandleStripeWebhook(w http.ResponseWriter, r *http.Requ
         return
     }
 
+    // Чтение тела запроса
     payload, err := io.ReadAll(r.Body)
     if err != nil {
         http.Error(w, "Read error", http.StatusServiceUnavailable)
         return
     }
 
-    // Обработка вебхука с учетом типа ошибки
+    // Обработка вебхука через paymentService
     if err := h.paymentService.HandleStripeWebhook(r.Context(), payload, r.Header.Get("Stripe-Signature")); err != nil {
         if err.Error() == "invalid signature" {
             http.Error(w, "Invalid Stripe signature", http.StatusBadRequest)
         } else {
-            http.Error(w, "Webhook handling failed: " + err.Error(), http.StatusInternalServerError)
+            http.Error(w, "Webhook handling failed: "+err.Error(), http.StatusInternalServerError)
         }
         return
     }
 
+    // Успешный ответ для Stripe
     w.WriteHeader(http.StatusOK)
-    // Опционально: вернуть тело ответа
-    // w.Write([]byte("Webhook processed"))
+    w.Write([]byte("Webhook processed successfully"))
 
+    // Отправка сигнала о завершении работы вебхука
 go func() {
     h.shutdownChan <- struct{}{}
 }()
@@ -86,7 +90,12 @@ go func() {
 }
 // Получение текущей Stripe-подписки пользователя
 func (api *PaymentAPI) GetCurrentSubscription(ctx context.Context, req *pb.GetCurrentSubscriptionRequest) (*pb.GetCurrentSubscriptionResponse, error) {
-	sub, err := api.subscriptionService.GetCurrentSubscription(ctx, int(req.UserId))
+	// Convert string to UUID
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID format: %v", err)
+	}
+	sub, err := api.subscriptionService.GetCurrentSubscription(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

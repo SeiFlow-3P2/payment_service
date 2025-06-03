@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+	
 )
 
 const (
@@ -345,7 +346,7 @@ func (x *GetSubscriptionInfoResponse) GetCurrentPeriodEnd() *timestamppb.Timesta
 
 type GetCurrentSubscriptionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                  `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -380,11 +381,11 @@ func (*GetCurrentSubscriptionRequest) Descriptor() ([]byte, []int) {
 	return file_payment_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GetCurrentSubscriptionRequest) GetUserId() int64 {
+func (x *GetCurrentSubscriptionRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
-	return 0
+	return ""
 }
 
 type GetCurrentSubscriptionResponse struct {

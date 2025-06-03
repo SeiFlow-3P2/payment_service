@@ -30,7 +30,7 @@ service PaymentService {
 
   rpc GetCurrentSubscription(GetCurrentSubscriptionRequest) returns (GetCurrentSubscriptionResponse) {
     option (google.api.http) = {
-      get: "/v1/payment/current-subscription"
+      get: "/v1/payment/current-subscription/{user_id}"
     };
   }
 }

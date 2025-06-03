@@ -4,7 +4,7 @@ import "time"
 
 type UserSubscription struct {
 	ID                   uint      `gorm:"primaryKey;column:id"`
-	UserID               string    `gorm:"column:user_id"`
+	UserID               uint      `gorm:"column:user_id"`
 	PlanID               string    `gorm:"column:plan_id"`
 	StripeSubscriptionID string    `gorm:"column:stripe_subscription_id"`
 	Status               string    `gorm:"column:status"`
