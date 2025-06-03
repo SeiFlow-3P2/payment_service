@@ -62,13 +62,13 @@ func main() {
 	grpcServer := grpc.NewServer()
 	pb.RegisterPaymentServiceServer(grpcServer, paymentAPI)
 
-	grpcLis, err := net.Listen("tcp", ":50052")
+	grpcLis, err := net.Listen("tcp", ":50053")
 	if err != nil {
 		log.Fatalf("Failed to listen on gRPC: %v", err)
 	}
 
 	go func() {
-		log.Println("gRPC server started on :50052")
+		log.Println("gRPC server started on :50053")
 		if err := grpcServer.Serve(grpcLis); err != nil {
 			log.Fatalf("gRPC server failed: %v", err)
 		}
@@ -88,8 +88,8 @@ func main() {
 			log.Fatalf("Failed to register gRPC-Gateway: %v", err)
 		}
 
-		log.Println("REST gateway started on :8080")
-		if err := http.ListenAndServe(":8080", mux); err != nil && err != http.ErrServerClosed {
+		log.Println("REST gateway started on :8088")
+		if err := http.ListenAndServe(":8088", mux); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("REST gateway failed: %v", err)
 		}
 	}()
@@ -99,8 +99,8 @@ func main() {
 
 	go func() {
 		http.HandleFunc("/webhook", webhookHandler.HandleStripeWebhook)
-		log.Println("HTTP webhook server started on :8000 (/webhook)")
-		if err := http.ListenAndServe(":8000", nil); err != nil && err != http.ErrServerClosed {
+		log.Println("HTTP webhook server started on :8001 (/webhook)")
+		if err := http.ListenAndServe(":8001", nil); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Webhook server error: %v", err)
 		}
 	}()
