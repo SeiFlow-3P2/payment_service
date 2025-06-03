@@ -19,10 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PaymentService_CreateCheckoutSession_FullMethodName  = "/payment.v1.PaymentService/CreateCheckoutSession"
-	PaymentService_HandleStripeWebhook_FullMethodName    = "/payment.v1.PaymentService/HandleStripeWebhook"
-	PaymentService_GetSubscriptionInfo_FullMethodName    = "/payment.v1.PaymentService/GetSubscriptionInfo"
-	PaymentService_GetCurrentSubscription_FullMethodName = "/payment.v1.PaymentService/GetCurrentSubscription"
+	PaymentService_CreateCheckoutSession_FullMethodName = "/payment.v1.PaymentService/CreateCheckoutSession"
+	PaymentService_HandleStripeWebhook_FullMethodName   = "/payment.v1.PaymentService/HandleStripeWebhook"
+	PaymentService_GetSubscriptionInfo_FullMethodName   = "/payment.v1.PaymentService/GetSubscriptionInfo"
 )
 
 // PaymentServiceClient is the client API for PaymentService service.
@@ -32,7 +31,6 @@ type PaymentServiceClient interface {
 	CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...grpc.CallOption) (*CreateCheckoutSessionResponse, error)
 	HandleStripeWebhook(ctx context.Context, in *HandleStripeWebhookRequest, opts ...grpc.CallOption) (*HandleStripeWebhookResponse, error)
 	GetSubscriptionInfo(ctx context.Context, in *GetSubscriptionInfoRequest, opts ...grpc.CallOption) (*GetSubscriptionInfoResponse, error)
-	GetCurrentSubscription(ctx context.Context, in *GetCurrentSubscriptionRequest, opts ...grpc.CallOption) (*GetCurrentSubscriptionResponse, error)
 }
 
 type paymentServiceClient struct {
@@ -73,16 +71,6 @@ func (c *paymentServiceClient) GetSubscriptionInfo(ctx context.Context, in *GetS
 	return out, nil
 }
 
-func (c *paymentServiceClient) GetCurrentSubscription(ctx context.Context, in *GetCurrentSubscriptionRequest, opts ...grpc.CallOption) (*GetCurrentSubscriptionResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetCurrentSubscriptionResponse)
-	err := c.cc.Invoke(ctx, PaymentService_GetCurrentSubscription_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // PaymentServiceServer is the server API for PaymentService service.
 // All implementations must embed UnimplementedPaymentServiceServer
 // for forward compatibility.
@@ -90,7 +78,6 @@ type PaymentServiceServer interface {
 	CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest) (*CreateCheckoutSessionResponse, error)
 	HandleStripeWebhook(context.Context, *HandleStripeWebhookRequest) (*HandleStripeWebhookResponse, error)
 	GetSubscriptionInfo(context.Context, *GetSubscriptionInfoRequest) (*GetSubscriptionInfoResponse, error)
-	GetCurrentSubscription(context.Context, *GetCurrentSubscriptionRequest) (*GetCurrentSubscriptionResponse, error)
 	mustEmbedUnimplementedPaymentServiceServer()
 }
 
@@ -109,9 +96,6 @@ func (UnimplementedPaymentServiceServer) HandleStripeWebhook(context.Context, *H
 }
 func (UnimplementedPaymentServiceServer) GetSubscriptionInfo(context.Context, *GetSubscriptionInfoRequest) (*GetSubscriptionInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubscriptionInfo not implemented")
-}
-func (UnimplementedPaymentServiceServer) GetCurrentSubscription(context.Context, *GetCurrentSubscriptionRequest) (*GetCurrentSubscriptionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentSubscription not implemented")
 }
 func (UnimplementedPaymentServiceServer) mustEmbedUnimplementedPaymentServiceServer() {}
 func (UnimplementedPaymentServiceServer) testEmbeddedByValue()                        {}
@@ -188,24 +172,6 @@ func _PaymentService_GetSubscriptionInfo_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PaymentService_GetCurrentSubscription_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCurrentSubscriptionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PaymentServiceServer).GetCurrentSubscription(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PaymentService_GetCurrentSubscription_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServiceServer).GetCurrentSubscription(ctx, req.(*GetCurrentSubscriptionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // PaymentService_ServiceDesc is the grpc.ServiceDesc for PaymentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -224,10 +190,6 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSubscriptionInfo",
 			Handler:    _PaymentService_GetSubscriptionInfo_Handler,
-		},
-		{
-			MethodName: "GetCurrentSubscription",
-			Handler:    _PaymentService_GetCurrentSubscription_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

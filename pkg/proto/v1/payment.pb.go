@@ -14,7 +14,6 @@ import (
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-	
 )
 
 const (
@@ -242,6 +241,7 @@ func (x *HandleStripeWebhookResponse) GetMessage() string {
 
 type GetSubscriptionInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -274,6 +274,13 @@ func (x *GetSubscriptionInfoRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetSubscriptionInfoRequest.ProtoReflect.Descriptor instead.
 func (*GetSubscriptionInfoRequest) Descriptor() ([]byte, []int) {
 	return file_payment_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetSubscriptionInfoRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
 type GetSubscriptionInfoResponse struct {
@@ -344,110 +351,6 @@ func (x *GetSubscriptionInfoResponse) GetCurrentPeriodEnd() *timestamppb.Timesta
 	return nil
 }
 
-type GetCurrentSubscriptionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                  `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetCurrentSubscriptionRequest) Reset() {
-	*x = GetCurrentSubscriptionRequest{}
-	mi := &file_payment_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetCurrentSubscriptionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetCurrentSubscriptionRequest) ProtoMessage() {}
-
-func (x *GetCurrentSubscriptionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_payment_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetCurrentSubscriptionRequest.ProtoReflect.Descriptor instead.
-func (*GetCurrentSubscriptionRequest) Descriptor() ([]byte, []int) {
-	return file_payment_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *GetCurrentSubscriptionRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type GetCurrentSubscriptionResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Status           string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	PlanId           string                 `protobuf:"bytes,2,opt,name=plan_id,json=planId,proto3" json:"plan_id,omitempty"`
-	CurrentPeriodEnd int64                  `protobuf:"varint,3,opt,name=current_period_end,json=currentPeriodEnd,proto3" json:"current_period_end,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *GetCurrentSubscriptionResponse) Reset() {
-	*x = GetCurrentSubscriptionResponse{}
-	mi := &file_payment_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetCurrentSubscriptionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetCurrentSubscriptionResponse) ProtoMessage() {}
-
-func (x *GetCurrentSubscriptionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_payment_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetCurrentSubscriptionResponse.ProtoReflect.Descriptor instead.
-func (*GetCurrentSubscriptionResponse) Descriptor() ([]byte, []int) {
-	return file_payment_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *GetCurrentSubscriptionResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *GetCurrentSubscriptionResponse) GetPlanId() string {
-	if x != nil {
-		return x.PlanId
-	}
-	return ""
-}
-
-func (x *GetCurrentSubscriptionResponse) GetCurrentPeriodEnd() int64 {
-	if x != nil {
-		return x.CurrentPeriodEnd
-	}
-	return 0
-}
-
 var File_payment_proto protoreflect.FileDescriptor
 
 const file_payment_proto_rawDesc = "" +
@@ -468,24 +371,18 @@ const file_payment_proto_rawDesc = "" +
 	"\x10stripe_signature\x18\x02 \x01(\tR\x0fstripeSignature\"Q\n" +
 	"\x1bHandleStripeWebhookResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\x1c\n" +
-	"\x1aGetSubscriptionInfoRequest\"\xe6\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"5\n" +
+	"\x1aGetSubscriptionInfoRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xe6\x01\n" +
 	"\x1bGetSubscriptionInfoResponse\x12\x17\n" +
 	"\aplan_id\x18\x01 \x01(\tR\x06planId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12L\n" +
 	"\x14current_period_start\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x12currentPeriodStart\x12H\n" +
-	"\x12current_period_end\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x10currentPeriodEnd\"8\n" +
-	"\x1dGetCurrentSubscriptionRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\"\x7f\n" +
-	"\x1eGetCurrentSubscriptionResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\x12\x17\n" +
-	"\aplan_id\x18\x02 \x01(\tR\x06planId\x12,\n" +
-	"\x12current_period_end\x18\x03 \x01(\x03R\x10currentPeriodEnd2\xa5\x04\n" +
+	"\x12current_period_end\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x10currentPeriodEnd2\xb4\x03\n" +
 	"\x0ePaymentService\x12\x8d\x01\n" +
 	"\x15CreateCheckoutSession\x12(.payment.v1.CreateCheckoutSessionRequest\x1a).payment.v1.CreateCheckoutSessionResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/payment/checkout\x12\x86\x01\n" +
 	"\x13HandleStripeWebhook\x12&.payment.v1.HandleStripeWebhookRequest\x1a'.payment.v1.HandleStripeWebhookResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/payment/webhook\x12\x88\x01\n" +
-	"\x13GetSubscriptionInfo\x12&.payment.v1.GetSubscriptionInfoRequest\x1a'.payment.v1.GetSubscriptionInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/payment/subscription\x12o\n" +
-	"\x16GetCurrentSubscription\x12).payment.v1.GetCurrentSubscriptionRequest\x1a*.payment.v1.GetCurrentSubscriptionResponseB1Z/payment_service/pkg/proto/payment/v1;payment_v1b\x06proto3"
+	"\x13GetSubscriptionInfo\x12&.payment.v1.GetSubscriptionInfoRequest\x1a'.payment.v1.GetSubscriptionInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/payment/subscriptionB1Z/payment_service/pkg/proto/payment/v1;payment_v1b\x06proto3"
 
 var (
 	file_payment_proto_rawDescOnce sync.Once
@@ -499,31 +396,27 @@ func file_payment_proto_rawDescGZIP() []byte {
 	return file_payment_proto_rawDescData
 }
 
-var file_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_payment_proto_goTypes = []any{
-	(*CreateCheckoutSessionRequest)(nil),   // 0: payment.v1.CreateCheckoutSessionRequest
-	(*CreateCheckoutSessionResponse)(nil),  // 1: payment.v1.CreateCheckoutSessionResponse
-	(*HandleStripeWebhookRequest)(nil),     // 2: payment.v1.HandleStripeWebhookRequest
-	(*HandleStripeWebhookResponse)(nil),    // 3: payment.v1.HandleStripeWebhookResponse
-	(*GetSubscriptionInfoRequest)(nil),     // 4: payment.v1.GetSubscriptionInfoRequest
-	(*GetSubscriptionInfoResponse)(nil),    // 5: payment.v1.GetSubscriptionInfoResponse
-	(*GetCurrentSubscriptionRequest)(nil),  // 6: payment.v1.GetCurrentSubscriptionRequest
-	(*GetCurrentSubscriptionResponse)(nil), // 7: payment.v1.GetCurrentSubscriptionResponse
-	(*timestamppb.Timestamp)(nil),          // 8: google.protobuf.Timestamp
+	(*CreateCheckoutSessionRequest)(nil),  // 0: payment.v1.CreateCheckoutSessionRequest
+	(*CreateCheckoutSessionResponse)(nil), // 1: payment.v1.CreateCheckoutSessionResponse
+	(*HandleStripeWebhookRequest)(nil),    // 2: payment.v1.HandleStripeWebhookRequest
+	(*HandleStripeWebhookResponse)(nil),   // 3: payment.v1.HandleStripeWebhookResponse
+	(*GetSubscriptionInfoRequest)(nil),    // 4: payment.v1.GetSubscriptionInfoRequest
+	(*GetSubscriptionInfoResponse)(nil),   // 5: payment.v1.GetSubscriptionInfoResponse
+	(*timestamppb.Timestamp)(nil),         // 6: google.protobuf.Timestamp
 }
 var file_payment_proto_depIdxs = []int32{
-	8, // 0: payment.v1.GetSubscriptionInfoResponse.current_period_start:type_name -> google.protobuf.Timestamp
-	8, // 1: payment.v1.GetSubscriptionInfoResponse.current_period_end:type_name -> google.protobuf.Timestamp
+	6, // 0: payment.v1.GetSubscriptionInfoResponse.current_period_start:type_name -> google.protobuf.Timestamp
+	6, // 1: payment.v1.GetSubscriptionInfoResponse.current_period_end:type_name -> google.protobuf.Timestamp
 	0, // 2: payment.v1.PaymentService.CreateCheckoutSession:input_type -> payment.v1.CreateCheckoutSessionRequest
 	2, // 3: payment.v1.PaymentService.HandleStripeWebhook:input_type -> payment.v1.HandleStripeWebhookRequest
 	4, // 4: payment.v1.PaymentService.GetSubscriptionInfo:input_type -> payment.v1.GetSubscriptionInfoRequest
-	6, // 5: payment.v1.PaymentService.GetCurrentSubscription:input_type -> payment.v1.GetCurrentSubscriptionRequest
-	1, // 6: payment.v1.PaymentService.CreateCheckoutSession:output_type -> payment.v1.CreateCheckoutSessionResponse
-	3, // 7: payment.v1.PaymentService.HandleStripeWebhook:output_type -> payment.v1.HandleStripeWebhookResponse
-	5, // 8: payment.v1.PaymentService.GetSubscriptionInfo:output_type -> payment.v1.GetSubscriptionInfoResponse
-	7, // 9: payment.v1.PaymentService.GetCurrentSubscription:output_type -> payment.v1.GetCurrentSubscriptionResponse
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
+	1, // 5: payment.v1.PaymentService.CreateCheckoutSession:output_type -> payment.v1.CreateCheckoutSessionResponse
+	3, // 6: payment.v1.PaymentService.HandleStripeWebhook:output_type -> payment.v1.HandleStripeWebhookResponse
+	5, // 7: payment.v1.PaymentService.GetSubscriptionInfo:output_type -> payment.v1.GetSubscriptionInfoResponse
+	5, // [5:8] is the sub-list for method output_type
+	2, // [2:5] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name
@@ -540,7 +433,7 @@ func file_payment_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_payment_proto_rawDesc), len(file_payment_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

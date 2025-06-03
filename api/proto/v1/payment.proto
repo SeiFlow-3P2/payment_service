@@ -59,4 +59,4 @@ message GetSubscriptionInfoResponse {
   string status = 2;
   google.protobuf.Timestamp current_period_start = 3;
   google.protobuf.Timestamp current_period_end = 4;
-  }
+}
