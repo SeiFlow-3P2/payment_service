@@ -24,7 +24,7 @@ import (
 
 func main() {
 	// Load .env
-	if err := godotenv.Load("../../config/config.env")
+	if err := godotenv.Load("../../.env.example")
 	err != nil {
 	log.Println("Error loading .env file:", err)
 	}
