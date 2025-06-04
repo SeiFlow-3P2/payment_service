@@ -14,20 +14,20 @@ service PaymentService {
       body: "*"
     };
   }
-  
+
   rpc HandleStripeWebhook (HandleStripeWebhookRequest) returns (HandleStripeWebhookResponse) {
     option (google.api.http) = {
       post: "/v1/payment/webhook"
       body: "*"
     };
   }
-  
+
   rpc GetSubscriptionInfo (GetSubscriptionInfoRequest) returns (GetSubscriptionInfoResponse) {
     option (google.api.http) = {
       get: "/v1/payment/subscription"
     };
   }
-}
+ }
 
 message CreateCheckoutSessionRequest {
   string plan_id = 1;
@@ -50,7 +50,9 @@ message HandleStripeWebhookResponse {
   string message = 2;
 }
 
-message GetSubscriptionInfoRequest {}
+message GetSubscriptionInfoRequest {
+  string user_id = 1;
+}
 
 message GetSubscriptionInfoResponse {
   string plan_id = 1;

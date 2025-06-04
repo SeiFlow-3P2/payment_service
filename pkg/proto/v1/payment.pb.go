@@ -241,6 +241,7 @@ func (x *HandleStripeWebhookResponse) GetMessage() string {
 
 type GetSubscriptionInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -273,6 +274,13 @@ func (x *GetSubscriptionInfoRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetSubscriptionInfoRequest.ProtoReflect.Descriptor instead.
 func (*GetSubscriptionInfoRequest) Descriptor() ([]byte, []int) {
 	return file_payment_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetSubscriptionInfoRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
 type GetSubscriptionInfoResponse struct {
@@ -363,8 +371,9 @@ const file_payment_proto_rawDesc = "" +
 	"\x10stripe_signature\x18\x02 \x01(\tR\x0fstripeSignature\"Q\n" +
 	"\x1bHandleStripeWebhookResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\x1c\n" +
-	"\x1aGetSubscriptionInfoRequest\"\xe6\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"5\n" +
+	"\x1aGetSubscriptionInfoRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xe6\x01\n" +
 	"\x1bGetSubscriptionInfoResponse\x12\x17\n" +
 	"\aplan_id\x18\x01 \x01(\tR\x06planId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12L\n" +
