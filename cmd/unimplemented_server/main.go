@@ -24,8 +24,9 @@ import (
 
 func main() {
 	// Load .env
-	if err := godotenv.Load(); err != nil {
-		log.Println("Error loading .env file:", err)
+	if err := godotenv.Load("../../.env.example")
+	err != nil {
+	log.Println("Error loading .env file:", err)
 	}
 
 	if os.Getenv("STRIPE_SECRET_KEY") == "" {
@@ -83,7 +84,7 @@ func main() {
 		mux := runtime.NewServeMux()
 		opts := []grpc.DialOption{grpc.WithInsecure()} // ⚠️ Без TLS
 
-		err := pb.RegisterPaymentServiceHandlerFromEndpoint(ctx, mux, "localhost:50052", opts)
+		err := pb.RegisterPaymentServiceHandlerFromEndpoint(ctx, mux, "localhost:50053", opts)
 		if err != nil {
 			log.Fatalf("Failed to register gRPC-Gateway: %v", err)
 		}
